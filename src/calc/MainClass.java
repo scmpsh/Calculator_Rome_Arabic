@@ -22,7 +22,7 @@ public class MainClass {
                 for (int i = 0; i < 3; i++)
                     arr[i] = scanner.next();
             } catch (NoSuchElementException e) {
-                System.err.println("Args is empty");
+                System.err.println("Please enter the expression like this: a + b");
                 continue ;
             }
             parsing(arr);
