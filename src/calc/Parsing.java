@@ -1,41 +1,92 @@
 package calc;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static calc.Calculate.calculate;
 
 public class Parsing {
 
-    public static int[] myGetRome(String[] arr) {
-        int[] res = new int[3];
-        enum romanNumeral {
-            I("I", 1), IV("IV", 4), V("V", 5), IX("IX", 9),
-            X("X", 10), XL("XL", 40), L("L", 50), XC("XC", 90),
-            C("C", 100);
-            final String key;
-            final int value;
+    enum RomanNumeral {
+        C(100), XC(90), L(50), XL(40), X(10),
+        IX(9), V(5), IV(4), I(1);
 
-            romanNumeral(String key, int value) {
-                this.key = key;
-                this.value = value;
-            }
+        private int value;
 
-            public int getValue() {
-                return value;
-            }
-
-            public String getKey() {
-                return key;
-            }
+        RomanNumeral(int value) {
+            this.value = value;
         }
-        for (romanNumeral romanNum : romanNumeral.values()) {
-            if (arr[0].equals(romanNum.getKey())) {
-                res[0] = romanNum.getValue();
-                System.out.println(res[0]);
-            }
+
+        public int getValue() {
+            return value;
         }
-        return (res);
+
+        public static List<RomanNumeral> getValues() {
+            return Arrays.stream(values()).collect(Collectors.toList());
+        }
     }
 
-    public static int parsing(String[] arr) {
+    public static int[] romanToArabic(String[] arr) {
+        int[] ret = new int[2];
+
+        List<RomanNumeral> romanNumerals = RomanNumeral.getValues();
+
+        int i = 0;
+
+        while ((arr[0].length() > 0) && (i < romanNumerals.size())) {
+            RomanNumeral symbol = romanNumerals.get(i);
+            if (arr[0].startsWith(symbol.name())) {
+                ret[0] += symbol.getValue();
+                arr[0] = arr[0].substring(symbol.name().length());
+            } else {
+                i++;
+            }
+        }
+        i = 0;
+        while ((arr[2].length() > 0) && (i < romanNumerals.size())) {
+            RomanNumeral symbol = romanNumerals.get(i);
+            if (arr[2].startsWith(symbol.name())) {
+                ret[1] += symbol.getValue();
+                arr[2] = arr[2].substring(symbol.name().length());
+            } else {
+                i++;
+            }
+        }
+
+        if (arr[0].length() > 0) {
+            throw new IllegalArgumentException(arr[0] + " cannot be converted to a Roman Numeral");
+        }
+        if (arr[2].length() > 0) {
+            throw new IllegalArgumentException(arr[2] + " cannot be converted to a Roman Numeral");
+        }
+        return ret;
+    }
+
+    public static String arabicToRoman(int number) {
+        List<RomanNumeral> romanNumerals = RomanNumeral.getValues();
+
+        if (number <= 0) {
+            throw new NumberFormatException("The result of calculating Roman numbers can only be a positive number");
+        }
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+
+        while (i < romanNumerals.size()) {
+            RomanNumeral Symbol = romanNumerals.get(i);
+            if (Symbol.getValue() <= number) {
+                sb.append(Symbol.name());
+                number -= Symbol.getValue();
+            } else {
+                i++;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static void parsing(String[] arr) {
         int isStr;
         int[] ret = new int[2];
         String operation;
@@ -52,20 +103,13 @@ public class Parsing {
         } catch (NumberFormatException e) {
             ++isStr;
         }
-        try {
-            if (isStr == 2) {
-                ret = myGetRome(arr);
-                return 1;
-            } else if (isStr == 0) {
-                calculate(ret, operation, isStr);
-                return 0;
-            } else if (isStr == 1) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            System.err.println("Two numbers must be Roman or Arabic at the same time");
-            return 1;
+        if (isStr == 2) {
+            ret = romanToArabic(arr);
+            calculate(ret, operation, isStr);
+        } else if (isStr == 0) {
+            calculate(ret, operation, isStr);
+        } else {
+            throw new NumberFormatException("The expression must contain only Roman or Arabic numbers");
         }
-        return 0;
     }
 }
