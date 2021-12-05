@@ -1,5 +1,6 @@
 package calc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class Parsing {
         }
 
         public static List<RomanNumeral> getValues() {
-            return Arrays.stream(values()).collect(Collectors.toList());
+            return Arrays.asList(values());
         }
     }
 
